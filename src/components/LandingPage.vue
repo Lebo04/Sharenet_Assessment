@@ -7,7 +7,9 @@
           <th @click="sort('name')">Coin Name</th>
           <th @click="sort('symbol')">Coin Symbol</th>
           <th @click="sort('current_price')">Price</th>
-          <th @click="sort('price_change_percentage_1h_in_currency')">1h Move</th>
+          <th @click="sort('price_change_percentage_1h_in_currency')">
+            1h Move
+          </th>
           <th @click="sort('market_cap')">Market Cap</th>
         </tr>
       </thead>
@@ -21,7 +23,7 @@
         </tr>
       </tbody>
     </table>
-    <router-link to="/page2">Go to Page 2</router-link>
+    <router-link to="/contact">Go to Page 2</router-link>
   </div>
 </template>
 
@@ -42,10 +44,7 @@ export default {
       if (this.sortBy) {
         data.sort((a, b) => {
           const modifier = this.sortDirection === "asc" ? 1 : -1;
-          return (
-            modifier *
-            (a[this.sortBy] - b[this.sortBy])
-          );
+          return modifier * (a[this.sortBy] - b[this.sortBy]);
         });
       }
       return data;
@@ -81,7 +80,10 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
+h1 {
+  color: #ffff;
+}
 table {
   width: 100%;
   border-collapse: collapse;
@@ -93,15 +95,13 @@ td {
   border: 1px solid #ccc;
   padding: 8px;
   text-align: left;
+  color: #ffff;
 }
 
 th {
   cursor: pointer;
 }
 
-tr:nth-child(even) {
-  background-color: #f2f2f2;
-}
 
 router-link {
   display: block;
