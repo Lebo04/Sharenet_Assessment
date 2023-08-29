@@ -1,29 +1,26 @@
 <template>
   <div>
-    <h1>Crypto Prices</h1>
+    <h1>Sharenet Spot Prices</h1>
     <table>
       <thead>
         <tr>
-          <th @click="sort('name')">Coin Name</th>
-          <th @click="sort('symbol')">Coin Symbol</th>
-          <th @click="sort('current_price')">Price</th>
-          <th @click="sort('price_change_percentage_1h_in_currency')">
-            1h Move
-          </th>
-          <th @click="sort('market_cap')">Market Cap</th>
+          <th @click="sort('fullName')">Full Name</th>
+          <th @click="sort('price')">Price</th>
+          <th @click="sort('move')">Move</th>
+          <th @click="sort('pmove')">Percentage Move</th>
+          <th @click="sort('datetime')">Time</th>
         </tr>
       </thead>
       <tbody>
-        <tr v-for="crypto in sortedCryptoData" :key="crypto.id">
-          <td>{{ crypto.name }}</td>
-          <td>{{ crypto.symbol }}</td>
-          <td>{{ crypto.current_price }}</td>
-          <td>{{ crypto.price_change_percentage_1h_in_currency }}%</td>
-          <td>{{ crypto.market_cap }}</td>
+        <tr v-for="spot in sortedSpots" :key="spot.code">
+          <td>{{ spot.fullName }}</td>
+          <td>{{ spot.price }}</td>
+          <td>{{ spot.move }}</td>
+          <td>{{ spot.pmove }}%</td>
+          <td>{{ spot.datetime }}</td>
         </tr>
       </tbody>
     </table>
-    <router-link to="/contact">Go to Page 2</router-link>
   </div>
 </template>
 
@@ -33,18 +30,21 @@ import axios from "axios";
 export default {
   data() {
     return {
-      cryptoData: [],
+      spotData: [],
       sortBy: null,
       sortDirection: "asc",
     };
   },
   computed: {
     sortedCryptoData() {
-      const data = [...this.cryptoData];
+      const data = [...this.spotData];
       if (this.sortBy) {
         data.sort((a, b) => {
           const modifier = this.sortDirection === "asc" ? 1 : -1;
-          return modifier * (a[this.sortBy] - b[this.sortBy]);
+          return (
+            modifier *
+            (a[this.sortBy] - b[this.sortBy])
+          );
         });
       }
       return data;
@@ -52,18 +52,23 @@ export default {
   },
   methods: {
     async fetchData() {
-      const response = await axios.get(
-        "https://api.coingecko.com/api/v3/coins/markets",
-        {
-          params: {
-            vs_currency: "usd",
-            order: "market_cap_desc",
-            per_page: 10,
-            page: 1,
-          },
-        }
-      );
-      this.cryptoData = response.data;
+      try {
+        const spots = await axios.get("https://api.sharenet.co.za/api/v1/px2/spots", {
+          headers: {
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Credentials": "true",
+            "Access-Control-Allow-Methods": "*",
+            "Access-Control-Request-Methods": "*",
+            "Access-Control-Allow-Headers": "*",
+            "Access-Control-Expose-Headers": "Authorization"
+          }
+        });
+      console.log(spots); 
+      this.spotData = response.spots;
+      } catch (error) {
+        console.log('error');
+      }
+      
     },
     sort(column) {
       if (this.sortBy === column) {
@@ -80,10 +85,7 @@ export default {
 };
 </script>
 
-<style scoped>
-h1 {
-  color: #ffff;
-}
+<style>
 table {
   width: 100%;
   border-collapse: collapse;
@@ -95,13 +97,15 @@ td {
   border: 1px solid #ccc;
   padding: 8px;
   text-align: left;
-  color: #ffff;
 }
 
 th {
   cursor: pointer;
 }
 
+tr:nth-child(even) {
+  background-color: #f2f2f2;
+}
 
 router-link {
   display: block;
